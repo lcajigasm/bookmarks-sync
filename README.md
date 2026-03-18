@@ -1,4 +1,10 @@
-# browser-path
+# browser-sync
+
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![Platform](https://img.shields.io/badge/platform-macOS-000000?logo=apple&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-brightgreen)
+![Zero dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
+![i18n](https://img.shields.io/badge/i18n-EN%20%7C%20ES-blue)
 
 A command-line tool that synchronises bookmarks between any two browsers installed on macOS — in any direction.
 
@@ -28,8 +34,8 @@ A command-line tool that synchronises bookmarks between any two browsers install
 ```bash
 # 1. Place the script somewhere on your PATH
 mkdir -p ~/.scripts/browser
-cp browser-path ~/.scripts/browser/browser-path
-chmod +x ~/.scripts/browser/browser-path
+cp browser-sync ~/.scripts/browser/browser-sync
+chmod +x ~/.scripts/browser/browser-sync
 
 # 2. Add the directory to your PATH (add to ~/.zshrc or ~/.bashrc)
 export PATH="$HOME/.scripts/browser:$PATH"
@@ -44,7 +50,7 @@ source ~/.zshrc
 Verify:
 
 ```bash
-browser-path --help
+browser-sync --help
 ```
 
 ---
@@ -54,7 +60,7 @@ browser-path --help
 ### Interactive mode (default)
 
 ```bash
-browser-path
+browser-sync
 ```
 
 The tool walks you through two menus:
@@ -67,7 +73,7 @@ It then shows a summary and asks for confirmation before writing anything.
 ### Dry-run mode
 
 ```bash
-browser-path --dry-run
+browser-sync --dry-run
 ```
 
 Reads the source, prints what would happen, and exits without modifying any file. Useful for verifying the operation before committing to it.
@@ -117,7 +123,7 @@ The tool opens the **live** database file directly (Firefox must be closed). For
 
 ## Sync persistence
 
-A plain file copy breaks cloud sync because the sync client detects that locally-known GUIDs have disappeared and may push deletions or conflicts. `browser-path` applies specific strategies for each engine to make the result sync-safe.
+A plain file copy breaks cloud sync because the sync client detects that locally-known GUIDs have disappeared and may push deletions or conflicts. `browser-sync` applies specific strategies for each engine to make the result sync-safe.
 
 ### Chrome / Brave Sync (LevelDB)
 
@@ -151,7 +157,7 @@ Profiles are read from `~/Library/Application Support/Firefox/profiles.ini`. The
 
 ## Backup
 
-Before writing to the destination, `browser-path` creates a timestamped backup of the existing file:
+Before writing to the destination, `browser-sync` creates a timestamped backup of the existing file:
 
 - Chromium: `<profile>/Bookmarks.bak_YYYYMMDD_HHMMSS`
 - Firefox: `<profile>/places.sqlite.bak_YYYYMMDD_HHMMSS`

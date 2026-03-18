@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-browser-path — Sincroniza marcadores entre navegadores.
+browser-sync — Sincroniza marcadores entre navegadores.
 
 Soporta como origen y destino:
   Brave · Google Chrome (y Beta/Dev) · Vivaldi · Microsoft Edge ·
@@ -14,8 +14,8 @@ Formato interno: Chromium JSON (bookmark_bar / other / synced).
   - Firefox  → Firefox  : SQLite → JSON → SQLite con tombstones.
 
 Uso:
-  browser-path             Menú interactivo (origen → destino)
-  browser-path --dry-run   Simula sin modificar nada
+  browser-sync             Menú interactivo (origen → destino)
+  browser-sync --dry-run   Simula sin modificar nada
 """
 
 from __future__ import annotations
