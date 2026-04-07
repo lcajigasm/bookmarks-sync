@@ -31,6 +31,15 @@ A command-line tool that synchronises bookmarks between any two browsers install
 
 ## Installation
 
+### Homebrew (recommended)
+
+```bash
+brew tap lcajigasm/browser-sync
+brew install browser-sync
+```
+
+### Manual
+
 ```bash
 # 1. Place the script somewhere on your PATH
 mkdir -p ~/.scripts/browser
