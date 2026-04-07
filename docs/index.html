@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>browser-sync — Sync bookmarks between browsers on macOS</title>
+  <meta name="description" content="A command-line tool that synchronises bookmarks between any two browsers on macOS — in any direction. Zero dependencies." />
+  <meta property="og:title" content="browser-sync" />
+  <meta property="og:description" content="Sync bookmarks between any two browsers on macOS. Zero dependencies." />
+  <meta property="og:type" content="website" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --bg2:       #161b22;
+      --bg3:       #1c2128;
+      --border:    #30363d;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --accent:    #58a6ff;
+      --accent2:   #79c0ff;
+      --green:     #3fb950;
+      --pill-bg:   #1f2937;
+      --code-bg:   #161b22;
+      --radius:    10px;
+      --font-mono: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Layout ── */
+    .container { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Nav ── */
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { color: var(--muted); font-size: 0.9rem; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 80px 0 64px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--pill-bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 14px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .hero-badge span { color: var(--green); font-weight: 600; }
+    h1 {
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    h1 em { font-style: normal; color: var(--accent); }
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 40px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; text-decoration: none; }
+    .btn-primary { background: var(--accent); color: #0d1117; }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    /* Install strip */
+    .install-strip {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+    }
+    .install-strip .prompt { color: var(--muted); user-select: none; }
+    .install-strip code { color: var(--text); }
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      transition: color .15s, border-color .15s;
+    }
+    .copy-btn:hover { color: var(--text); border-color: var(--muted); }
+    .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+    /* ── Sections ── */
+    section { padding: 64px 0; border-top: 1px solid var(--border); }
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .section-sub {
+      color: var(--muted);
+      margin-bottom: 36px;
+      font-size: 1rem;
+    }
+
+    /* ── Features ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .feature-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .feature-icon {
+      font-size: 1.6rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    .feature-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+
+    /* ── Browsers ── */
+    .browsers {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .browser-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .browser-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.2rem;
+    }
+    .browser-card h4 { font-size: 0.88rem; font-weight: 600; line-height: 1.3; }
+    .browser-card span { font-size: 0.78rem; color: var(--muted); }
+
+    /* ── Code blocks ── */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      overflow-x: auto;
+      line-height: 1.7;
+    }
+    .code-block .comment { color: #6e7681; }
+    .code-block .cmd     { color: var(--accent2); }
+    .code-block .flag    { color: #ffa657; }
+    .code-block .dollar  { color: var(--muted); user-select: none; }
+
+    /* ── How it works ── */
+    .steps { display: flex; flex-direction: column; gap: 16px; }
+    .step {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+    .step-num {
+      background: var(--accent);
+      color: #0d1117;
+      font-weight: 700;
+      font-size: 0.85rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step h3 { font-size: 0.97rem; font-weight: 600; margin-bottom: 4px; }
+    .step p  { color: var(--muted); font-size: 0.9rem; }
+
+    /* ── Install full ── */
+    .install-steps { display: flex; flex-direction: column; gap: 12px; }
+    .install-step-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      text-align: center;
+    }
+    footer p { color: var(--muted); font-size: 0.88rem; }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--text); }
+
+    /* ── GitHub icon ── */
+    .gh-icon { vertical-align: middle; width: 18px; height: 18px; fill: currentColor; }
+
+    @media (max-width: 600px) {
+      .hero { padding: 48px 0 40px; }
+      .install-strip { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="container">
+    <span class="nav-logo">$ browser-sync</span>
+    <div class="nav-links">
+      <a href="#install">Install</a>
+      <a href="#browsers">Browsers</a>
+      <a href="#usage">Usage</a>
+      <a href="https://github.com/lcajigasm/bookmarks-sync" target="_blank" rel="noopener">
+        <svg class="gh-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+        </svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-badge">
+      <span>v1.0.0</span> · macOS · Zero dependencies
+    </div>
+    <h1>Sync bookmarks between<br/><em>any two browsers</em></h1>
+    <p class="hero-sub">
+      A single-file command-line tool that moves your bookmarks from one browser to another — in any direction, safely, preserving cloud sync.
+    </p>
+    <div class="hero-actions">
+      <a href="#install" class="btn btn-primary">Get started</a>
+      <a href="https://github.com/lcajigasm/bookmarks-sync" target="_blank" rel="noopener" class="btn btn-secondary">
+        <svg class="gh-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+        </svg>
+        View on GitHub
+      </a>
+    </div>
+    <div class="install-strip">
+      <span class="prompt">$</span>
+      <code id="install-cmd">brew tap lcajigasm/browser-sync &amp;&amp; brew install browser-sync</code>
+      <button class="copy-btn" id="copy-btn" onclick="copyInstall()">Copy</button>
+    </div>
+  </div>
+</header>
+
+<!-- Features -->
+<section>
+  <div class="container">
+    <h2>Why browser-sync?</h2>
+    <p class="section-sub">Everything you need, nothing you don't.</p>
+    <div class="features">
+      <div class="feature-card">
+        <span class="feature-icon">🔀</span>
+        <h3>Any direction</h3>
+        <p>Chrome → Firefox, Firefox → Brave, Edge → Vivaldi — every combination works both ways.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">☁️</span>
+        <h3>Sync-safe</h3>
+        <p>Preserves root GUIDs and writes tombstones so browser sync services don't push spurious deletions.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📦</span>
+        <h3>Zero dependencies</h3>
+        <p>Pure Python 3, which ships with macOS. No pip, no venv, no Node — just one script.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">💾</span>
+        <h3>Auto-backup</h3>
+        <p>Creates a timestamped backup of the destination before writing. Restores it automatically if anything fails.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">👁️</span>
+        <h3>Dry-run mode</h3>
+        <p>Preview exactly what would change — no file is touched until you explicitly confirm.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🌐</span>
+        <h3>English &amp; Spanish</h3>
+        <p>UI language is detected automatically from your system locale. More languages are easy to add.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Browsers -->
+<section id="browsers">
+  <div class="container">
+    <h2>Supported browsers</h2>
+    <p class="section-sub">Mix and match any source and destination.</p>
+    <div class="browsers">
+      <div class="browser-card">
+        <div class="browser-logo" style="background:#1a1a2e;">🦁</div>
+        <div><h4>Brave</h4><span>Chromium</span></div>
+      </div>
+      <div class="browser-card">
+        <div class="browser-logo" style="background:#1a2035;">🌐</div>
+        <div><h4>Google Chrome</h4><span>Stable · Beta · Dev</span></div>
+      </div>
+      <div class="browser-card">
+        <div class="browser-logo" style="background:#1a1a2e;">⚡</div>
+        <div><h4>Vivaldi</h4><span>Chromium</span></div>
+      </div>
+      <div class="browser-card">
+        <div class="browser-logo" style="background:#1a2035;">🔷</div>
+        <div><h4>Microsoft Edge</h4><span>Chromium</span></div>
+      </div>
+      <div class="browser-card">
+        <div class="browser-logo" style="background:#2a1a1a;">🦊</div>
+        <div><h4>Firefox</h4><span>Gecko</span></div>
+      </div>
+      <div class="browser-card">
+        <div class="browser-logo" style="background:#2a1a1a;">🦊</div>
+        <div><h4>Firefox Dev Edition</h4><span>Gecko</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section>
+  <div class="container">
+    <h2>How it works</h2>
+    <p class="section-sub">Three steps, one command.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Select source &amp; destination</h3>
+          <p>An interactive menu lists every installed browser and each of its profiles. Pick one as source, one as destination.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Review the summary</h3>
+          <p>browser-sync shows you exactly what will be written and asks for confirmation. Use <code style="font-family:var(--font-mono);color:var(--accent2);">--dry-run</code> to skip even that.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <h3>Bookmarks are transferred</h3>
+          <p>All data is normalised through an internal Chromium JSON pivot. A backup of the destination is created first, and restored automatically if anything goes wrong.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Usage -->
+<section id="usage">
+  <div class="container">
+    <h2>Usage</h2>
+    <p class="section-sub">Interactive by default, scriptable when needed.</p>
+    <div class="code-block">
+      <div><span class="dollar">$ </span><span class="cmd">browser-sync</span>
+      <span class="comment">           # interactive mode — pick source &amp; destination</span></div>
+      <div style="margin-top:10px;"><span class="dollar">$ </span><span class="cmd">browser-sync</span> <span class="flag">--dry-run</span>
+      <span class="comment">  # preview changes, write nothing</span></div>
+      <div style="margin-top:10px;"><span class="dollar">$ </span><span class="cmd">browser-sync</span> <span class="flag">--help</span>
+      <span class="comment">     # show all options</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Install -->
+<section id="install">
+  <div class="container">
+    <h2>Installation</h2>
+    <p class="section-sub">One tap, one install.</p>
+    <div class="install-steps">
+      <div>
+        <div class="install-step-label">1 — Add the tap</div>
+        <div class="code-block"><span class="dollar">$ </span><span class="cmd">brew tap lcajigasm/browser-sync</span></div>
+      </div>
+      <div>
+        <div class="install-step-label">2 — Install</div>
+        <div class="code-block"><span class="dollar">$ </span><span class="cmd">brew install browser-sync</span></div>
+      </div>
+      <div>
+        <div class="install-step-label">3 — Run</div>
+        <div class="code-block"><span class="dollar">$ </span><span class="cmd">browser-sync</span></div>
+      </div>
+    </div>
+    <p style="margin-top:20px; color:var(--muted); font-size:0.9rem;">
+      Requires macOS Monterey or later and Python 3.10+, which ships with macOS — no extra installs needed.
+    </p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p>
+      Open source under the
+      <a href="https://github.com/lcajigasm/bookmarks-sync/blob/main/LICENSE" target="_blank" rel="noopener">MIT license</a>
+      ·
+      <a href="https://github.com/lcajigasm/bookmarks-sync" target="_blank" rel="noopener">GitHub</a>
+      ·
+      Built by <a href="https://github.com/lcajigasm" target="_blank" rel="noopener">lcajigasm</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  function copyInstall() {
+    const text = 'brew tap lcajigasm/browser-sync && brew install browser-sync';
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
