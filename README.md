@@ -5,8 +5,13 @@
 ![License](https://img.shields.io/badge/license-MIT-brightgreen)
 ![Zero dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
 ![i18n](https://img.shields.io/badge/i18n-EN%20%7C%20ES-blue)
+[![Website](https://img.shields.io/badge/website-lcajigasm.github.io-58a6ff?logo=github)](https://lcajigasm.github.io/bookmarks-sync/)
 
 A command-line tool that synchronises bookmarks between any two browsers installed on macOS — in any direction.
+
+**[🌐 lcajigasm.github.io/bookmarks-sync](https://lcajigasm.github.io/bookmarks-sync/)**
+
+[![Landing page](docs/screenshot.png)](https://lcajigasm.github.io/bookmarks-sync/)
 
 ## Supported browsers
 
